@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>QR Code Akses Brankas</title>
+    <link rel="stylesheet" href="/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+    <div class="main-bg">
+        <div class="qr-container">
+            <div class="header-row">
+                <div></div>
+                <div class="logout-btn-container">
+                    <a href="/logout" class="logout-btn">Logout</a>
+                </div>
+            </div>
+            <h1>QR Code Akses Brankas</h1>
+            <p class="welcome">Selamat datang,<span class="owner"> <b>Pemilik Brankas</b></span>!</p>
+            <div class="qr-card">
+                <img src="<%= qr_img %>" id="qrimg" alt="QR Code">
+            </div>
+            <div class="timer-area">
+                <div class="timer-label">
+                    <svg width="18" height="18" style="vertical-align:middle;margin-right:6px" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#2563eb" stroke-width="2"/><path d="M12 6v6l4 2" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span id="timer">Ganti dalam: <span id="countdown">60</span> detik</span>
+                </div>
+                <div class="progressbar-bg">
+                  <div class="progressbar-fill" id="progressbar"></div>
+                </div>
+            </div>
+            <p class="footer-hint">Tunjukkan QR ini ke brankas untuk membuka akses</p>
+            <% if (typeof error !== "undefined" && error) { %>
+            <div class="error"><%= error %></div>
+            <% } %>
+        </div>
+    </div>
+    <script>
+        let countdown = 60;
+        setInterval(() => {
+            countdown--;
+            document.getElementById('countdown').textContent = countdown;
+            const percent = (countdown / 60) * 100;
+            document.getElementById('progressbar').style.width = percent + "%";
+            if (countdown <= 0) refreshQR();
+        }, 1000);
+
+        function refreshQR() {
+            fetch('/api/qrcode')
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('qrimg').src = data.qr_img;
+                    countdown = 60;
+                    document.getElementById('progressbar').style.width = "100%";
+                });
+        }
+        setInterval(refreshQR, 60 * 1000);
+    </script>
+</body>
+</html>
